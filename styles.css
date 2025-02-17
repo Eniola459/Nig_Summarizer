@@ -1,0 +1,65 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #e9f5e9;
+  color: #155724;
+  margin: 0;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.container-box {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+/* Change border color to green on focus */
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: green !important;
+  box-shadow: 0 0 0 0.2rem rgba(0, 128, 0, 0.25) !important; /* Optional: Add a shadow effect */
+}
+h1 {
+  text-align: center;
+  color: #155724;
+}
+
+.d-flex {
+  margin-bottom: 20px;
+}
+
+.text-area-container {
+  position: relative;
+  margin-bottom: 20px;
+  background: #f8fff8;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #c3e6cb;
+  min-height: 150px;
+}
+
+.text-box {
+  min-height: 120px;
+  padding: 10px;
+  overflow-y: auto;
+  color: #155724;
+}
+
+.summarize-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.summarize-btn:hover {
+  background-color: #218838;
+}
