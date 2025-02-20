@@ -1,65 +1,363 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #e9f5e9;
-  color: #155724;
   margin: 0;
-  padding: 20px;
-  overflow: hidden;
+  padding: 0;
+  background-color: #fff;
+  color: #333;
+  margin-bottom: 40px; 
 }
 
-.container-box {
-  max-width: 800px;
-  margin: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-}
-/* Change border color to green on focus */
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: green !important;
-  box-shadow: 0 0 0 0.2rem rgba(0, 128, 0, 0.25) !important; /* Optional: Add a shadow effect */
-}
+
+/* Green Heading */
 h1 {
-  text-align: center;
-  color: #155724;
-}
-
-.d-flex {
-  margin-bottom: 20px;
-}
-
-.text-area-container {
-  position: relative;
-  margin-bottom: 20px;
-  background: #f8fff8;
-  border-radius: 8px;
-  padding: 15px;
-  border: 1px solid #c3e6cb;
-  min-height: 150px;
-}
-
-.text-box {
-  min-height: 120px;
+  color: #007f33; /* Dark green */
+  font-weight: bold;
+  border: 3px solid #007f33; /* Green border around heading */
   padding: 10px;
-  overflow-y: auto;
-  color: #155724;
+  border-radius: 10px;
+  text-align: center;
 }
 
-.summarize-btn {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background-color: #28a745;
-  color: white;
+/* Green Bordered Container */
+.container {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  border: 5px solid #007f33; /* Green edges */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Search Bar and Dropdown Styling */
+#searchBox, #filterDropdown, #subFilterDropdown {
+  border: 1px solid #007f33;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+/* Green Buttons for Summarization and Analysis */
+.btn-success,
+.btn-primary,
+.btn-warning {
+  background-color: #007f33 !important; 
   border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
+  color: white;
+}
+
+.btn-success:hover,
+.btn-primary:hover,
+.btn-warning:hover 
+.back-button:hover,
+.forward-button:hover {
+  background-color: #007f33 !important; 
+  transform: scale(1.05); /* Slightly enlarge the button */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Textarea Container for Side-by-Side Layout */
+.textarea-container {
+  display: flex; 
+  gap: 10px;
+  width: 100%;
+  border: 5px solid #007f33; /* Green border surrounding all textboxes */
+  border-radius: 8px;
+  overflow: hidden; /* Ensures the border stays connected */
+}
+
+/* Textbox Styling */
+textarea {
+  background: #f8fff8; /* Light greenish background */
+  border: none; /* Removes default border */
+  padding: 15px;
+  min-height: 180px;
+  width: 100%;
+  resize: none;
+  color: black; /* Ensures dark text */
+  font-size: 16px;
+}
+
+/* Vertical Green Separator Between Textboxes */
+.textarea-container textarea:not(:last-child) {
+  border-right: 5px solid #007f33; 
+}
+
+/* Navbar styles */
+.navbar {
+  background-color: #007f33; 
+  padding: 20px 80px;
+  min-height: 50px;
+  display: flex;
+  justify-content: space-between; /* Aligns links to the right */
+  align-items: center;
+  
+}
+
+/* Align nav links to the right */
+.nav-links {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  gap: 15px;
+  margin-left: auto;
+  transition: transform 0.3s ease-in-out;
+}
+.nav-links.show {
+  transform: translateX(0); /* Shows the menu */
+}
+
+.nav-links li {
+  display: inline;
+}
+
+.nav-links li a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.nav-links li a:hover {
+  color: #d4edda; /* Lighter green for hover effect */
+}
+
+.navbar ul.nav-links {
+    display: flex;
+    justify-content: space-around;
+    list-style-type: none;
+}
+
+.navbar .menu-toggle {
+    display: none; /* Hide menu toggle on larger screens */
+}
+/* Hamburger menu (hidden by default) */
+.menu-toggle {
+  display: none;
+  font-size: 36px;
+  color: black;
   cursor: pointer;
 }
 
-.summarize-btn:hover {
+@media screen and (max-width: 768px) {
+  .navbar ul.nav-links {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      background-color: #333;
+  }
+
+  .navbar ul.nav-links.show {
+      display: block;
+  }
+}
+
+/* Responsive for small screens */
+@media screen and (max-width: 768px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background-color: #007f33;
+    width: 200px;
+    padding: 10px;
+  }
+
+  .nav-links.show {
+    display: flex;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+}
+
+
+/* Hero Section */
+.hero {
+  background-color: white; 
+  color: black;
+  padding: 40px 20px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  position: relative;
+  height: 20vh;
+}
+
+
+.hero .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  text-align: center;
+
+   
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 3rem;
+  line-height: 1.2;
+  font-weight: bold;
+  margin-bottom: 20px;
+  
+} 
+.hero p {
+  font-size: 1.2rem; 
+  margin-top: 10px;
+  margin-bottom: 30px;
+  
+}
+
+/* Search bar styling */
+.hero #search-bar {
+  padding: 20px;
+  width: 70%;
+  border-radius: 35px;
+  font-size: 1rem;
+  margin-top: 20px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba (0, 0, 0, 0.1);
+}
+
+.hero #search-bar:focus {
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+      font-size: 2rem; /* Adjust for smaller screens */
+  }
+
+  .hero p {
+      font-size: 1rem; /* Adjust for smaller screens */
+  }
+
+  .hero #search-bar {
+      width: 80%; /* Adjust for smaller screens */
+  }
+}
+
+/* PDF Icon */
+.pdf-icon {
+  width: 20px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+/* Filter Section */
+.filter-section {
+  margin: 20px;
+  text-align: center;
+}
+
+.filter-section label,
+.filter-section select {
+  margin: 0 10px;
+  padding: 10px;
+}
+
+/* Constitution List Section */
+.constitution-list {
+  margin: 20px;
+}
+
+.documents {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.doc-item {
+  background-color: #f4f4f4;
+  padding: 20px;
+  width: 250px;
+  text-align: center;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .doc-item{
+      width: 300px;
+  }
+}
+.doc-item a {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007f33;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+.doc-item a:hover {
+  background-color: #005f23;
+}
+
+
+.about {
+  text-align: center;
+  padding: 50px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about h2 {
+  color: green;
+}
+
+.about p {
+  font-size: 18px;
+  color: #333;
+}
+
+.contact {
+  text-align: center;
+  padding: 20px;
+  display: block;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between; /* Moves one to the left and one to the right */
+  padding: 20px;
+  width: 100%;
+}
+
+.back-button, .forward-button {
+  background-color: green;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.forward-button {
+  background-color: #28a745; /* Green color for next */
+}
+
+.back-button:hover {
+  background-color: #0056b3;
+}
+
+.forward-button:hover {
   background-color: #218838;
+}
+
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 8px;
+  background-color: #007f33;
+  color: white;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
 }
