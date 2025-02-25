@@ -1,192 +1,324 @@
-// Wait for the DOM to fully load before executing the script
-document.addEventListener("DOMContentLoaded", function () {
-    // Define navigation functions globally
-    let pages = ['index.html', 'Access.html', 'about.html', 'contact.html'];
-    let currentIndex = 0;
+document.addEventListener("DOMContentLoaded", async function () {
+    const backendURL = 'http://localhost:5000';
+    
+    // Navigation pages
+    const pages = ['index.html', 'access.html', 'about.html', 'contact.html'];
+    let storedPage = localStorage.getItem('currentPage') || 'index.html';
+    let currentIndex = pages.indexOf(storedPage);
+    if (currentIndex === -1) currentIndex = 0;
 
+    // Navigation functions
     function goBack() {
         if (currentIndex > 0) {
             currentIndex--;
-            window.location.href = pages[currentIndex]; // Navigate to the previous page
+            navigateToPage();
         }
     }
 
     function goForward() {
         if (currentIndex < pages.length - 1) {
             currentIndex++;
-            window.location.href = pages[currentIndex]; // Navigate to the next page
+            navigateToPage();
         }
     }
 
-    // Attach the functions globally so that the HTML can access them
-    window.goBack = goBack;
-    window.goForward = goForward;
+    function navigateToPage() {
+        localStorage.setItem('currentPage', pages[currentIndex]);
+        window.location.href = pages[currentIndex];
+    }
 
-    // Add event listeners to buttons in HTML
-    document.querySelector('.back-button').addEventListener('click', goBack);
-    document.querySelector('.forward-button').addEventListener('click', goForward);
+    function updateNavigation() {
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        currentIndex = pages.indexOf(currentPath);
+        if (currentIndex === -1) currentIndex = 0;
 
-    // Navigation links
-    const navLinks = document.querySelectorAll('.nav-links a');
+        localStorage.setItem('currentPage', currentPath);
 
-    // Section elements
-    const sections = document.querySelectorAll("section");
-
-    // Hide all sections initially
-    sections.forEach(section => section.style.display = 'none');
-
-    // Show home section by default
-    const homeSection = document.getElementById('home');
-    if (homeSection) homeSection.style.display = 'block';
-
-    // Navigation handling
-    navLinks.forEach(function (link) {
-        link.addEventListener('click', function (event) {
-            const targetId = link.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-
-            if (targetSection) {
-                event.preventDefault();
-                sections.forEach(sec => sec.style.display = 'none');
-                targetSection.style.display = 'block';
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === currentPath) {
+                link.classList.add('active');
             }
+        });
+
+        const backButton = document.querySelector('.back-button');
+        const forwardButton = document.querySelector('.forward-button');
+        if (backButton) backButton.disabled = currentIndex === 0;
+        if (forwardButton) forwardButton.disabled = currentIndex === pages.length - 1;
+    }
+
+    // Event listeners for navigation
+    document.querySelectorAll('.nav-links a').forEach((link, index) => {
+        link.addEventListener('click', function (event) {
+            event.preventDefault();
+            currentIndex = index;
+            navigateToPage();
         });
     });
 
-    // Toggle menu function
-    function toggleMenu() {
-        document.querySelector(".nav-links").classList.toggle("show");
-    }
-    window.toggleMenu = toggleMenu;
+    const backButton = document.querySelector('.back-button');
+    const forwardButton = document.querySelector('.forward-button');
+    if (backButton) backButton.addEventListener('click', goBack);
+    if (forwardButton) forwardButton.addEventListener('click', goForward);
 
-    // Filter function
-    function filterDocuments() {
-        const yearFilter = document.getElementById('year-filter');
-        const typeFilter = document.getElementById('type-filter');
-        const docItems = document.querySelectorAll('.doc-item');
+    updateNavigation();
 
-        const selectedYear = yearFilter ? yearFilter.value : 'all';
-        const selectedType = typeFilter ? typeFilter.value : 'all';
+    // Menu toggle
+    window.toggleMenu = function () {
+        document.querySelector(".nav-links")?.classList.toggle("active");
+    };
 
-        docItems.forEach(function (docItem) {
-            const docYear = docItem.getAttribute('data-year');
-            const docType = docItem.getAttribute('data-type');
-
-            const isYearMatch = (selectedYear === 'all' || docYear === selectedYear);
-            const isTypeMatch = (selectedType === 'all' || docType === selectedType);
-
-            docItem.style.display = isYearMatch && isTypeMatch ? 'block' : 'none';
-        });
-    }
-
-    // Add event listeners for filters
-    const yearFilter = document.getElementById('year-filter');
-    const typeFilter = document.getElementById('type-filter');
+    // Dropdown elements
+    const chapterDropdown = document.getElementById("chapter");
+    const partDropdown = document.getElementById("part");
+    const sectionDropdown = document.getElementById("section");
+    const subsectionDropdown = document.getElementById("subsection");
     const filterDropdown = document.getElementById("filterDropdown");
     const subFilterDropdown = document.getElementById("subFilterDropdown");
+    const sectionNumberInput = document.getElementById("sectionNumber");
     const searchBox = document.getElementById("searchBox");
 
-    if (yearFilter) yearFilter.addEventListener('change', filterDocuments);
-    if (typeFilter) typeFilter.addEventListener('change', filterDocuments);
-    if (filterDropdown) filterDropdown.addEventListener("change", loadSubFilters);
-    if (searchBox) {
-        searchBox.addEventListener("keyup", function (event) {
-            if (event.key === "Enter") {
-                searchConstitution();
-            }
-        });
-    }
-
-    // Load subcategories dynamically
-    async function loadSubFilters() {
-        if (!subFilterDropdown) return;
-        subFilterDropdown.innerHTML = '<option value="">Select category...</option>';
-        let filterType = filterDropdown.value;
-        if (filterType === "all") return;
-
-        try {
-            const response = await fetch(`/getSubFilters?filter=${filterType}`);
-            const data = await response.json();
-            data.forEach(item => {
-                let newOption = document.createElement("option");
-                newOption.text = item.name;
-                newOption.value = item.id;
-                subFilterDropdown.appendChild(newOption);
-            });
-        } catch (error) {
-            console.error("Error loading subfilters:", error);
+    // Utility to clear and disable dropdowns
+    function clearDropdown(dropdown) {
+        if (dropdown) {
+            dropdown.innerHTML = `<option value="">Select ${dropdown.id.charAt(0).toUpperCase() + dropdown.id.slice(1)}</option>`;
+            dropdown.disabled = true;
         }
     }
 
-    // Perform search
-    async function searchConstitution() {
-        let keyword = document.getElementById("searchBox").value || "";
-        let filter = document.getElementById("filterDropdown").value || "";
-        let subFilter = document.getElementById("subFilterDropdown") ? document.getElementById("subFilterDropdown").value : "";
-    
-        document.getElementById("loadingSpinner").classList.remove("d-none");
-        document.getElementById("searchText").classList.add("d-none");
-    
+    // Fetch options from backend
+    async function fetchOptions(level, parentId = '') {
+        const endpoint = `/api/filters/${level}`;
+        const queryParam = parentId ? `?parent_id=${parentId}` : '';
+        const dropdown = document.getElementById(level);
+        if (!dropdown) return;
+
         try {
-            const response = await fetch("http://localhost/backend/search.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ keyword, filter, subFilter })
-            });
-    
+            const response = await fetch(endpoint + queryParam);
             const data = await response.json();
-    
-            document.getElementById("loadingSpinner").classList.add("d-none");
-            document.getElementById("searchText").classList.remove("d-none");
-    
-            if (data.results.length > 0) {
-                let resultText = data.results.map(item => 
-                    `Chapter: ${item.chapter || ""}, Part: ${item.part || ""}, Section: ${item.section || ""}, 
-                     Subsection: ${item.subsection || ""}, Paragraph: ${item.paragraph || ""} 
-                     - ${item.content}`
-                ).join("\n\n");
-    
-                document.getElementById("inputText1").value = resultText;
-            } else {
-                document.getElementById("inputText1").value = "No results found.";
+            clearDropdown(dropdown);
+
+            if (data.success && data.data.length > 0) {
+                data.data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item;
+                    option.textContent = item;
+                    dropdown.appendChild(option);
+                });
+                dropdown.disabled = false;
             }
+
+            // Clear dependent dropdowns
+            const dependentLevels = ['part', 'section', 'subsection'];
+            dependentLevels.slice(dependentLevels.indexOf(level) + 1).forEach(clearDropdown);
         } catch (error) {
-            console.error("Search Error:", error);
-            document.getElementById("inputText1").value = "Error fetching results.";
+            console.error(`Error loading ${level} options:`, error);
+            alert(`Failed to load ${level} options. Is the backend running?`);
         }
     }
-    
-    // Generate summary
-    function generateSummary() {
-        let text = document.getElementById("inputText1").value;
-        document.getElementById("summaryText").value = text
-            ? "Summarized: " + text.substring(0, 100) + "..."
-            : "No text available for summarization.";
-    }
 
-    // Analyze text with AI
-    async function analyzeText() {
-        let text = document.getElementById("inputText1").value;
-        if (!text.trim()) {
-            alert("Please enter some text to analyze.");
+    // Fetch subFilter options based on filter type
+    async function updateSubFilter() {
+        const filterType = filterDropdown.value;
+        clearDropdown(subFilterDropdown);
+        sectionNumberInput.style.display = (filterType === 'subsection' || filterType === 'paragraph') ? 'block' : 'none';
+
+        if (filterType === 'all') {
+            subFilterDropdown.disabled = true;
             return;
         }
 
         try {
-            const response = await fetch("/analyzeText", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text })
-            });
-
+            const response = await fetch(`/api/filters/${filterType}`);
             const data = await response.json();
-            document.getElementById("analysisText").value = data.explanation || "Could not generate analysis.";
+            if (data.success && data.data.length > 0) {
+                data.data.forEach(item => {
+                    const option = document.createElement("option");
+                    option.value = item;
+                    option.textContent = item;
+                    subFilterDropdown.appendChild(option);
+                });
+                subFilterDropdown.disabled = false;
+            }
         } catch (error) {
-            console.error("Analysis Error:", error);
+            console.error(`Error loading ${filterType} options:`, error);
         }
     }
 
-    // Expose functions globally
+    // Initial setup
+    fetchOptions('chapter');
+    if (filterDropdown) filterDropdown.addEventListener("change", updateSubFilter);
+    if (chapterDropdown) chapterDropdown.addEventListener("change", () => fetchOptions('part', chapterDropdown.value));
+    if (partDropdown) partDropdown.addEventListener("change", () => fetchOptions('section', partDropdown.value));
+    if (sectionDropdown) sectionDropdown.addEventListener("change", () => fetchOptions('subsection', sectionDropdown.value));
+    if (subsectionDropdown) subsectionDropdown.addEventListener("change", autoFillSearch);
+
+    // Auto-fill search form from hierarchical dropdowns
+    function autoFillSearch() {
+        const chapter = chapterDropdown.value;
+        const part = partDropdown.value;
+        const section = sectionDropdown.value;
+        const subsection = subsectionDropdown.value;
+
+        if (subsection) {
+            filterDropdown.value = 'subsection';
+            subFilterDropdown.value = subsection;
+            sectionNumberInput.value = section;
+            sectionNumberInput.style.display = 'block';
+        } else if (section) {
+            filterDropdown.value = 'section';
+            subFilterDropdown.value = section;
+            sectionNumberInput.value = '';
+            sectionNumberInput.style.display = 'none';
+        } else if (part) {
+            filterDropdown.value = 'part';
+            subFilterDropdown.value = part;
+        } else if (chapter) {
+            filterDropdown.value = 'chapter';
+            subFilterDropdown.value = chapter;
+        }
+        updateSubFilter();
+    }
+
+    // Search function
+    async function searchConstitution() {
+        const keyword = searchBox?.value || '';
+        const filter = filterDropdown?.value || 'all';
+        const subFilter = subFilterDropdown?.value || '';
+        const sectionNumber = sectionNumberInput?.value || '';
+
+        const payload = {};
+        if (keyword) payload.keyword = keyword;
+        if (filter !== 'all') {
+            payload.filter = filter;
+            payload.subFilter = subFilter;
+            if ((filter === 'subsection' || filter === 'paragraph') && !sectionNumber) {
+                alert('Section number is required for this filter.');
+                return;
+            }
+            if (sectionNumber) payload.section_number = sectionNumber;
+        }
+
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const searchText = document.getElementById("searchText");
+        loadingSpinner?.classList.remove("d-none");
+        searchText?.classList.add("d-none");
+
+        try {
+            const response = await fetch("http://localhost:5000/search", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            loadingSpinner?.classList.add("d-none");
+            searchText?.classList.remove("d-none");
+
+            const resultBox = document.getElementById("inputText1");
+            if (data.success) {
+                resultBox.value = data.results.map(item => item.content).join('\n\n') || "No results found.";
+            } else {
+                resultBox.value = `Error: ${data.error}`;
+            }
+        } catch (error) {
+            console.error("Search Error:", error);
+            alert("Failed to search. Is the backend running?");
+            loadingSpinner?.classList.add("d-none");
+            searchText?.classList.remove("d-none");
+        }
+    }
+
+    // Generate summary
+    async function generateSummary() {
+        const filter = filterDropdown?.value || 'all';
+        const subFilter = subFilterDropdown?.value || '';
+        const sectionNumber = sectionNumberInput?.value || '';
+        const inputText = document.getElementById("inputText1")?.value;
+
+        if (!inputText) {
+            alert("Please search for some text first.");
+            return;
+        }
+
+        const payload = { filter, subFilter };
+        if (filter === 'subsection' || filter === 'paragraph') {
+            if (!sectionNumber) {
+                alert('Section number is required for this filter.');
+                return;
+            }
+            payload.section_number = sectionNumber;
+        }
+
+        try {
+            const response = await fetch("http://localhost:5000/summarize", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById("summaryText").value = data.summary || "No summary generated.";
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Summary Error:", error);
+            alert("Failed to summarize. Is the backend running?");
+        }
+    }
+
+    // Analyze text
+    async function analyzeText() {
+        const filter = filterDropdown?.value || 'all';
+        const subFilter = subFilterDropdown?.value || '';
+        const sectionNumber = sectionNumberInput?.value || '';
+        const inputText = document.getElementById("inputText1")?.value;
+
+        if (!inputText) {
+            alert("Please search for some text first.");
+            return;
+        }
+
+        const payload = { filter, subFilter };
+        if (filter === 'subsection' || filter === 'paragraph') {
+            if (!sectionNumber) {
+                alert('Section number is required for this filter.');
+                return;
+            }
+            payload.section_number = sectionNumber;
+        }
+
+        try {
+            const response = await fetch("http://localhost:5000/analyzeText", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById("analysisText").value = data.analysis || "No analysis generated.";
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Analysis Error:", error);
+            alert("Failed to analyze. Is Ollama running?");
+        }
+    }
+
+    // Expose functions to global scope for HTML onclick
+    window.goBack = goBack;
+    window.goForward = goForward;
     window.generateSummary = generateSummary;
     window.analyzeText = analyzeText;
+
+    // Event listeners
+    if (searchBox) {
+        searchBox.addEventListener("keyup", event => {
+            if (event.key === "Enter") searchConstitution();
+        });
+    }
 });

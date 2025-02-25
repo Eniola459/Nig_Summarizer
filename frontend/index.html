@@ -6,80 +6,261 @@
     <title>Nigerian Constitution Summarizer</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
   <div class="nav-buttons">
     <button onclick="goBack()" class="back-button">← Back</button>
     <button onclick="goForward()" class="forward-button">Next →</button>
-</div>
+  </div>
 
   <div class="navbar">
     <div class="menu-toggle" onclick="toggleMenu()">☰</div>
     <ul class="nav-links">
         <li><a href="index.html">Home</a></li>
-        <li><a href="acess.html">Access Constitution</a></li>
-        <li><a href="about.html">AboutUs</a></li>
+        <li><a href="access.html">Access Constitution</a></li>
+        <li><a href="about.html">About Us</a></li>
         <li><a href="contact.html">Contact Us</a></li>
     </ul>
-</div>
+  </div>
 
-    <div class="d-flex align-items-center min-vh-100">
-        <div class="container w-100">
-            <h1 class="text-center">Constitution Summarizer</h1>
+  <div class="d-flex align-items-center min-vh-100">
+    <div class="container w-100">
+        <h1 class="text-center">Constitution Summarizer</h1>
 
-            <!-- Search Form -->
-            <div class="d-flex gap-3 mb-3">
-                <input class="form-control" type="text" id="searchBox" placeholder="Enter keywords or question...">
-                <select id="filterDropdown" class="form-select">
-                    <option value="all">All</option>
-                    <option value="chapter">Chapter</option>
-                    <option value="part">Part</option>
-                    <option value="section">Section</option>
-                    <option value="subsection">Subsection</option>
-                    <option value="paragraph">Paragraph</option>
+        <!-- Search Form -->
+        <div class="d-flex gap-3 mb-3">
+            <input class="form-control" type="text" id="searchBox" placeholder="Enter keywords or question...">
+            <select id="filterDropdown" class="form-select" onchange="updateSubFilter()">
+                <option value="all">All</option>
+                <option value="chapter">Chapter</option>
+                <option value="part">Part</option>
+                <option value="section">Section</option>
+                <option value="subsection">Subsection</option>
+                <option value="paragraph">Paragraph</option>
+            </select>
+            <select id="subFilterDropdown" class="form-select" disabled>
+                <option value="">Select category...</option>
+            </select>
+            <input type="text" id="sectionNumber" class="form-control" placeholder="Section Number (if needed)" style="display: none;">
+            <button id="searchButton" class="btn btn-success" onclick="searchConstitution()">
+                <span id="searchText">Search</span>
+                <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none"></span>
+            </button>
+        </div>
+
+        <!-- Hierarchical Filtering -->
+        <h3>Browse Constitution Sections</h3>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="chapter">Chapter:</label>
+                <select id="chapter" class="form-select" onchange="fetchOptions('part', this.value)">
+                    <option value="">Select Chapter</option>
                 </select>
-                <select id="subFilterDropdown" class="form-select" disabled>
-                    <option value="">Select category...</option>
+            </div>
+            <div class="col-md-3">
+                <label for="part">Part:</label>
+                <select id="part" class="form-select" onchange="fetchOptions('section', this.value)" disabled>
+                    <option value="">Select Part</option>
                 </select>
-                <button id="searchButton" class="btn btn-success">
-                    <span id="searchText">Search</span>
-                    <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none"></span>
-                </button>
             </div>
-
-            <!-- Text Boxes for Input and Output -->
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card p-2">
-                        <textarea id="inputText1" class="form-control" rows="6" placeholder="Original Text"></textarea>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-2">
-                        <textarea id="summaryText" class="form-control" rows="6" placeholder="Summarized Version"></textarea>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-2">
-                        <textarea id="analysisText" class="form-control" rows="6" placeholder="Analyze Output"></textarea>
-                    </div>
-                </div>
+            <div class="col-md-3">
+                <label for="section">Section:</label>
+                <select id="section" class="form-select" onchange="fetchOptions('subsection', this.value)" disabled>
+                    <option value="">Select Section</option>
+                </select>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="d-flex justify-content-center gap-3 mt-3">
-                <button class="btn btn-primary" onclick="generateSummary()">Generate Summary</button>
-                <button class="btn btn-warning" onclick="analyzeText()">Analyze Text</button>
+            <div class="col-md-3">
+                <label for="subsection">Subsection:</label>
+                <select id="subsection" class="form-select" onchange="autoFillSearch()" disabled>
+                    <option value="">Select Subsection</option>
+                </select>
             </div>
         </div>
+
+        <!-- Text Areas for Summarization -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card p-2">
+                    <textarea id="inputText1" class="form-control" rows="6" placeholder="Original Text" readonly></textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-2">
+                    <textarea id="summaryText" class="form-control" rows="6" placeholder="Summarized Version" readonly></textarea>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-2">
+                    <textarea id="analysisText" class="form-control" rows="6" placeholder="Analyze Output" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <button class="btn btn-primary" onclick="generateSummary()">Generate Summary</button>
+            <button class="btn btn-warning" onclick="analyzeText()">Analyze Text</button>
+        </div>
     </div>
+  </div>
 
-
-     <!-- Footer -->
-     <footer>
-      <p>&copy; 2025 Nigerian Constitution Repository. All rights reserved.</p>
+  <!-- Footer -->
+  <footer>
+      <p>© 2025 Nigerian Constitution Repository. All rights reserved.</p>
   </footer>
-    <script src="script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Scripts -->
+  <script>
+      $(document).ready(function() {
+          fetchOptions('chapter'); 
+          updateSubFilter();
+      });
+
+      // Fetch filter options from backend
+      function fetchOptions(level, parentId = '') {
+          let endpoint = `/api/filters/${level}`;
+          let queryParam = parentId ? `?parent_id=${parentId}` : '';
+          
+          $.getJSON(endpoint + queryParam, function(data) {
+              let dropdown = $(`#${level}`);
+              dropdown.empty().append(`<option value="">Select ${level.charAt(0).toUpperCase() + level.slice(1)}</option>`);
+                
+              if (data.success && data.data.length > 0) {
+                  data.data.forEach(item => dropdown.append(`<option value="${item}">${item}</option>`));
+                  dropdown.prop('disabled', false);
+              } else {
+                  dropdown.prop('disabled', true);
+              }
+              
+              // Reset dependent dropdowns
+              let levels = ['part', 'section', 'subsection'];
+              let index = levels.indexOf(level);
+              for (let i = index + 1; i < levels.length; i++) {
+                  $(`#${levels[i]}`).empty().append(`<option value="">Select ${levels[i].charAt(0).toUpperCase() + levels[i].slice(1)}</option>`).prop('disabled', true);
+              }
+          }).fail(function() {
+              alert(`Failed to load ${level} options. Check if the backend is running.`);
+          });
+      }
+
+      // Update subFilter dropdown based on filterDropdown selection
+      function updateSubFilter() {
+          const filterType = $('#filterDropdown').val();
+          const subFilterDropdown = $('#subFilterDropdown');
+          const sectionNumberInput = $('#sectionNumber');
+          
+          subFilterDropdown.empty().append('<option value="">Select category...</option>');
+          sectionNumberInput.hide(); 
+
+          if (filterType === 'all') {
+              subFilterDropdown.prop('disabled', true);
+          } else {
+              $.getJSON(`/api/filters/${filterType}`, function(data) {
+                  if (data.success && data.data.length > 0) {
+                      data.data.forEach(item => subFilterDropdown.append(`<option value="${item}">${item}</option>`));
+                      subFilterDropdown.prop('disabled', false);
+                  } else {
+                      subFilterDropdown.prop('disabled', true);
+                  }
+              }).fail(function() {
+                  alert(`Failed to load ${filterType} options.`);
+              });
+
+              // Show sectionNumber input for subsection or paragraph
+              if (filterType === 'subsection' || filterType === 'paragraph') {
+                  sectionNumberInput.show();
+              }
+          }
+      }
+
+      // Auto-fill search form from hierarchical dropdowns
+      function autoFillSearch() {
+          const chapter = $('#chapter').val();
+          const part = $('#part').val();
+          const section = $('#section').val();
+          const subsection = $('#subsection').val();
+
+          if (subsection) {
+              $('#filterDropdown').val('subsection');
+              $('#subFilterDropdown').val(subsection).prop('disabled', false);
+              $('#sectionNumber').val(section).show();
+          } else if (section) {
+              $('#filterDropdown').val('section');
+              $('#subFilterDropdown').val(section).prop('disabled', false);
+          } else if (part) {
+              $('#filterDropdown').val('part');
+              $('#subFilterDropdown').val(part).prop('disabled', false);
+          } else if (chapter) {
+              $('#filterDropdown').val('chapter');
+              $('#subFilterDropdown').val(chapter).prop('disabled', false);
+          }
+          updateSubFilter(); 
+      }
+
+      // Search the constitution
+      function searchConstitution() {
+          const keyword = $('#searchBox').val();
+          const filter = $('#filterDropdown').val();
+          const subFilter = $('#subFilterDropdown').val();
+          const sectionNumber = $('#sectionNumber').val();
+          const searchButton = $('#searchButton');
+          const searchText = $('#searchText');
+          const loadingSpinner = $('#loadingSpinner');
+
+          // Show loading state
+          searchText.addClass('d-none');
+          loadingSpinner.removeClass('d-none');
+          searchButton.prop('disabled', true);
+
+          const payload = {};
+          if (keyword) payload.keyword = keyword;
+          if (filter !== 'all') {
+              payload.filter = filter;
+              payload.subFilter = subFilter;
+              if (filter === 'subsection' || filter === 'paragraph') {
+                  if (!sectionNumber) {
+                      alert('Section number is required for this filter.');
+                      resetButtonState();
+                      return;
+                  }
+                  payload.section_number = sectionNumber;
+              }
+          }
+
+          $.ajax({
+              url: '/search',
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify(payload),
+              success: function(data) {
+                  if (data.success) {
+                      $('#inputText1').val(data.results.map(r => r.content).join('\n'));
+                      $('#summaryText').val('');
+                      $('#analysisText').val('');
+                  } else {
+                      alert(`Error: ${data.error}`);
+                  }
+              },
+              error: function() {
+                  alert('Failed to search. Is the backend running?');
+              },
+              complete: function() {
+                  resetButtonState();
+              }
+          });
+
+          function resetButtonState() {
+              searchText.removeClass('d-none');
+              loadingSpinner.addClass('d-none');
+              searchButton.prop('disabled', false);
+          }
+      }
+
+
+  </script>
+
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

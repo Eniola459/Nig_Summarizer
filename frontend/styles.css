@@ -4,7 +4,8 @@ body {
   padding: 0;
   background-color: #fff;
   color: #333;
-  margin-bottom: 40px; 
+  margin-bottom: 40px;
+  padding-bottom: 50px; 
 }
 
 
@@ -28,28 +29,33 @@ h1 {
 }
 
 /* Search Bar and Dropdown Styling */
-#searchBox, #filterDropdown, #subFilterDropdown {
+#searchBox, #filterDropdown, #subFilterDropdown #sectionNumber{
   border: 1px solid #007f33;
   border-radius: 8px;
   padding: 10px;
+  font-size: 16px;
+}
+.d-flex.gap-3 {
+  align-items: center;
 }
 
 /* Green Buttons for Summarization and Analysis */
 .btn-success,
 .btn-primary,
-.btn-warning {
+.btn-warning,
+.forward-button {
   background-color: #007f33 !important; 
   border: none;
   color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.btn-success:hover,
-.btn-primary:hover,
-.btn-warning:hover 
-.back-button:hover,
-.forward-button:hover {
+.btn-success:hover, .btn-primary:hover,.btn-warning:hover 
+.back-button:hover, .forward-button:hover {
   background-color: #007f33 !important; 
-  transform: scale(1.05); /* Slightly enlarge the button */
+  transform: scale(1.05); 
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -58,20 +64,20 @@ h1 {
   display: flex; 
   gap: 10px;
   width: 100%;
-  border: 5px solid #007f33; /* Green border surrounding all textboxes */
+  border: 5px solid #007f33; 
   border-radius: 8px;
-  overflow: hidden; /* Ensures the border stays connected */
+  overflow: hidden; 
 }
 
 /* Textbox Styling */
 textarea {
-  background: #f8fff8; /* Light greenish background */
-  border: none; /* Removes default border */
+  background: #f8fff8; 
+  border: none; 
   padding: 15px;
   min-height: 180px;
   width: 100%;
   resize: none;
-  color: black; /* Ensures dark text */
+  color: black; 
   font-size: 16px;
 }
 
@@ -83,12 +89,19 @@ textarea {
 /* Navbar styles */
 .navbar {
   background-color: #007f33; 
-  padding: 20px 80px;
+  padding: 15px 40px;
   min-height: 50px;
   display: flex;
-  justify-content: space-between; /* Aligns links to the right */
+  justify-content: space-between; 
   align-items: center;
+  position: relative;
   
+}
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  max-width: 600px; 
+  margin: 0 auto;
 }
 
 /* Align nav links to the right */
@@ -101,7 +114,7 @@ textarea {
   transition: transform 0.3s ease-in-out;
 }
 .nav-links.show {
-  transform: translateX(0); /* Shows the menu */
+  transform: translateX(0); 
 }
 
 .nav-links li {
@@ -115,7 +128,7 @@ textarea {
 }
 
 .nav-links li a:hover {
-  color: #d4edda; /* Lighter green for hover effect */
+  color: #d4edda; 
 }
 
 .navbar ul.nav-links {
@@ -125,7 +138,7 @@ textarea {
 }
 
 .navbar .menu-toggle {
-    display: none; /* Hide menu toggle on larger screens */
+    display: none; 
 }
 /* Hamburger menu (hidden by default) */
 .menu-toggle {
@@ -148,28 +161,44 @@ textarea {
   }
 }
 
-/* Responsive for small screens */
+
+/* Responsive Design */
 @media screen and (max-width: 768px) {
-  .nav-links {
-    display: none;
-    flex-direction: column;
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background-color: #007f33;
-    width: 200px;
-    padding: 10px;
-  }
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
 
-  .nav-links.show {
-    display: flex;
-  }
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: #007f33;
+        padding: 10px 0;
+    }
 
-  .menu-toggle {
-    display: block;
-  }
+    .nav-links.active {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .d-flex.gap-3 {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .textarea-container {
+        flex-direction: column;
+    }
+
+    textarea:not(:last-child) {
+        border-right: none;
+        border-bottom: 5px solid #007f33;
+    }
 }
-
 
 /* Hero Section */
 .hero {
@@ -227,15 +256,15 @@ textarea {
 
 @media (max-width: 768px) {
   .hero h1 {
-      font-size: 2rem; /* Adjust for smaller screens */
+      font-size: 2rem; 
   }
 
   .hero p {
-      font-size: 1rem; /* Adjust for smaller screens */
+      font-size: 1rem; 
   }
 
   .hero #search-bar {
-      width: 80%; /* Adjust for smaller screens */
+      width: 80%; 
   }
 }
 
@@ -323,7 +352,7 @@ textarea {
 
 .nav-buttons {
   display: flex;
-  justify-content: space-between; /* Moves one to the left and one to the right */
+  justify-content: space-between; 
   padding: 20px;
   width: 100%;
 }
@@ -339,7 +368,7 @@ textarea {
 }
 
 .forward-button {
-  background-color: #28a745; /* Green color for next */
+  background-color: #28a745;
 }
 
 .back-button:hover {
